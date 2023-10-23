@@ -32,6 +32,7 @@ const Customizer = () => {
       default:
         state.isLogoTexture = true;
         state.isFullTexture = false;
+        break;
     }
 
     setActiveFilterTab((prevState) => {
@@ -65,7 +66,23 @@ const Customizer = () => {
     }
 
     try {
-      
+      setGeneratingImg(true);
+
+      const response = await fetch('http://localhost:8080/api/v1/dalle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt
+        })
+      });
+
+      const data = await response.json();
+      if (data) {
+        handleDecals(type, data);
+      }
+
     } catch (error) {
       console.error(error);
       alert(error);
@@ -120,7 +137,7 @@ const Customizer = () => {
             </div>
           </motion.div>
 
-          <motion.div className='absolute z-10 top-5 right-5'>
+          <motion.div className='absolute z-10 top-5 right-5' {...slideAnimation('right')}>
             <CustomButton 
               type={'filled'}
               title={'Go Back'}
@@ -139,6 +156,13 @@ const Customizer = () => {
                 handleClick={() => handleActiveFilterTab(tab.name)}
               />
             ))}
+            <button className='download-btn' onClick={downloadCanvasToImage}>
+              <img
+                src={download}
+                alt='download_image'
+                className='w-3/5 h-3/5 object-contain'
+              />
+            </button>
           </motion.div>
         </>
       )}
